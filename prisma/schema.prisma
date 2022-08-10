@@ -17,6 +17,8 @@ model User {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  token     String   @db.VarChar(255)
+  email     String?  @db.VarChar(255)
   rooms     Room[]
   votes     Vote[]
 
@@ -24,15 +26,17 @@ model User {
 }
 
 model Room {
-  id   String @id @default(cuid())
-  name String @db.VarChar(255)
+  id          String  @id @default(cuid())
+  name        String  @db.VarChar(255)
+  description String? @db.VarChar(1000)
 
-  options Json
+  options Json?
   stories Story[]
-  user    User?   @relation(fields: [userId], references: [id])
-  userId  String?
 
-  @@index([userId])
+  ownerToken String @db.VarChar(255)
+  users      User[]
+
+  @@index([ownerToken])
   @@map("room")
 }
 

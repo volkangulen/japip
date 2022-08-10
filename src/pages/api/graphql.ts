@@ -1,14 +1,16 @@
 import { ApolloServer } from "apollo-server-micro";
-import { NextApiRequest, NextApiResponse, PageConfig } from "next/types";
 import { schema } from "../../graphql/schema";
 import { createContext } from "../../graphql/context";
+import Cors from "micro-cors";
+
+const cors = Cors();
 
 const server = new ApolloServer({
   context: createContext,
   schema,
 });
 
-export const config: PageConfig = {
+export const config = {
   api: {
     bodyParser: false,
   },
@@ -16,10 +18,11 @@ export const config: PageConfig = {
 
 const startServer = server.start();
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<any>
-) {
+export default cors(async function handler(req, res) {
+  if (req.method === "OPTIONS") {
+    res.end();
+    return false;
+  }
   await startServer;
   await server.createHandler({ path: "/api/graphql" })(req, res);
-}
+});
